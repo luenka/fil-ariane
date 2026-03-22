@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a0a12" />
+  <meta name="description" content="Le Fil d'Ariane — Transmettez l'essentiel à ceux que vous aimez" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <title>Le Fil d'Ariane</title>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════ SPLASH -->
+<div id="view-splash" class="view active">
+  <div class="splash-bg">
+    <canvas id="thread-canvas"></canvas>
+    <div class="grain"></div>
+  </div>
+  <div class="splash-content">
+    <div class="logo-mark">
+      <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+        <circle cx="28" cy="28" r="27" stroke="#c9a84c" stroke-width="1"/>
+        <path d="M28 8 Q38 18 28 28 Q18 38 28 48" stroke="#c9a84c" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        <circle cx="28" cy="8" r="2.5" fill="#c9a84c"/>
+        <circle cx="28" cy="48" r="2.5" fill="#c9a84c"/>
+      </svg>
+    </div>
+    <h1 class="brand-title">Le Fil d'Ariane</h1>
+    <p class="brand-tagline">Ce qui compte ne se perd pas</p>
+    <div class="splash-actions">
+      <button class="btn-primary" onclick="App.showView('view-auth')">Commencer</button>
+      <button class="btn-ghost" onclick="App.showView('view-auth', 'login')">J'ai déjà un compte</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ AUTH -->
+<div id="view-auth" class="view">
+  <div class="grain"></div>
+  <div class="auth-container">
+    <button class="back-btn" onclick="App.showView('view-splash')">
+      <svg width="20" height="20" viewBox="0 0 20 20"><path d="M12 4L6 10L12 16" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+    </button>
+    <div class="auth-header">
+      <div class="logo-sm">
+        <svg width="32" height="32" viewBox="0 0 56 56" fill="none">
+          <circle cx="28" cy="28" r="27" stroke="#c9a84c" stroke-width="1.5"/>
+          <path d="M28 8 Q38 18 28 28 Q18 38 28 48" stroke="#c9a84c" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <circle cx="28" cy="8" r="3" fill="#c9a84c"/>
+          <circle cx="28" cy="48" r="3" fill="#c9a84c"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" id="tab-register" onclick="Auth.switchTab('register')">Créer un compte</button>
+      <button class="tab" id="tab-login" onclick="Auth.switchTab('login')">Se connecter</button>
+    </div>
+
+    <!-- Register -->
+    <div id="form-register" class="auth-form">
+      <div class="field">
+        <label>Prénom</label>
+        <input type="text" id="reg-name" placeholder="Votre prénom" autocomplete="given-name" />
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="reg-email" placeholder="votre@email.com" autocomplete="email" />
+      </div>
+      <div class="field">
+        <label>Mot de passe</label>
+        <input type="password" id="reg-password" placeholder="••••••••" autocomplete="new-password" />
+        <div id="pw-strength-feedback"></div>
+      </div>
+      <button class="btn-primary full" onclick="Auth.register()">Créer mon espace de transmission</button>
+      <p class="auth-legal">En créant un compte, vous acceptez nos <a href="#">conditions</a> et notre <a href="#">politique de confidentialité</a>.</p>
+    </div>
+
+    <!-- Login -->
+    <div id="form-login" class="auth-form hidden">
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="login-email" placeholder="votre@email.com" autocomplete="email" />
+      </div>
+      <div class="field">
+        <label>Mot de passe</label>
+        <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password" />
+      </div>
+      <button class="btn-primary full" onclick="Auth.login()">Accéder à mon espace</button>
+      <button class="btn-ghost full" onclick="Auth.forgotPassword()">Mot de passe oublié</button>
+    </div>
+
+    <div id="auth-error" class="error-msg hidden"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ MAIN APP -->
+<div id="view-app" class="view">
+  <div class="grain"></div>
+
+  <!-- Top bar -->
+  <header class="app-header">
+    <div class="header-left">
+      <svg width="24" height="24" viewBox="0 0 56 56" fill="none">
+        <circle cx="28" cy="28" r="27" stroke="#c9a84c" stroke-width="1.5"/>
+        <path d="M28 8 Q38 18 28 28 Q18 38 28 48" stroke="#c9a84c" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <circle cx="28" cy="8" r="3" fill="#c9a84c"/>
+        <circle cx="28" cy="48" r="3" fill="#c9a84c"/>
+      </svg>
+      <span class="app-title">Le Fil d'Ariane</span>
+    </div>
+    <button class="avatar-btn" onclick="App.showSection('profile')" id="user-avatar">M</button>
+  </header>
+
+  <!-- Main content area -->
+  <main class="app-main">
+
+    <!-- ── DASHBOARD -->
+    <section id="section-dashboard" class="section active">
+      <div class="greeting">
+        <p class="greeting-sub">Bonjour,</p>
+        <h2 class="greeting-name" id="greeting-name">Marie</h2>
+      </div>
+
+      <div class="progress-card">
+        <div class="progress-label">
+          <span>Votre transmission</span>
+          <span id="progress-pct">35%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress-fill" style="width:35%"></div>
+        </div>
+        <p class="progress-hint">3 capsules · 2 documents · 1 gardien</p>
+      </div>
+
+      <h3 class="section-label">Continuer</h3>
+      <div class="cards-grid">
+        <div class="feature-card" onclick="App.showSection('studio')">
+          <div class="card-icon">🎬</div>
+          <h4>Studio de Mémoire</h4>
+          <p>Enregistrez vos messages, conseils et secrets</p>
+          <span class="card-badge">3 capsules</span>
+        </div>
+        <div class="feature-card" onclick="App.showSection('vault')">
+          <div class="card-icon">🔐</div>
+          <h4>Coffre-fort</h4>
+          <p>Documents, volontés, codes importants</p>
+          <span class="card-badge">2 fichiers</span>
+        </div>
+        <div class="feature-card" onclick="App.showSection('guardians')">
+          <div class="card-icon">👥</div>
+          <h4>Mes Gardiens</h4>
+          <p>Personnes de confiance désignées</p>
+          <span class="card-badge">1 gardien</span>
+        </div>
+        <div class="feature-card" onclick="App.showSection('legacy')">
+          <div class="card-icon">📋</div>
+          <h4>Bilan de Transmission</h4>
+          <p>Questionnaire guidé de prévoyance</p>
+          <span class="card-badge new">Nouveau</span>
+        </div>
+      </div>
+
+      <h3 class="section-label">Dernière activité</h3>
+      <div class="activity-list" id="activity-list">
+        <div class="activity-item">
+          <div class="activity-dot"></div>
+          <div>
+            <p class="activity-title">Capsule "Message à mes enfants" créée</p>
+            <p class="activity-date">Il y a 2 jours</p>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-dot"></div>
+          <div>
+            <p class="activity-title">Document "Testament" ajouté au coffre</p>
+            <p class="activity-date">Il y a 5 jours</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── STUDIO DE MÉMOIRE -->
+    <section id="section-studio" class="section hidden">
+      <div class="section-header">
+        <button class="back-btn-sm" onclick="App.showSection('dashboard')">
+          <svg width="18" height="18" viewBox="0 0 20 20"><path d="M12 4L6 10L12 16" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+        </button>
+        <h2>Studio de Mémoire</h2>
+      </div>
+
+      <p class="section-desc">Enregistrez des messages qui traverseront le temps.</p>
+
+      <div class="record-panel">
+        <div class="record-visualizer" id="audio-visualizer">
+          <div class="vis-bars">
+            <span></span><span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span><span></span>
+          </div>
+        </div>
+        <p class="record-status" id="record-status">Prêt à enregistrer</p>
+        <div class="record-controls">
+          <button class="btn-record" id="btn-audio" onclick="Recorder.toggleAudio()">
+            <svg width="24" height="24" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z" fill="currentColor"/><path d="M19 10v2a7 7 0 0 1-14 0v-2" stroke="currentColor" stroke-width="1.5" fill="none"/><line x1="12" y1="19" x2="12" y2="23" stroke="currentColor" stroke-width="1.5"/></svg>
+            Message audio
+          </button>
+          <button class="btn-record" id="btn-video" onclick="Recorder.startVideo()">
+            <svg width="24" height="24" viewBox="0 0 24 24"><path d="M23 7l-7 5 7 5V7z" fill="currentColor"/><rect x="1" y="5" width="15" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+            Vidéo
+          </button>
+        </div>
+        <div id="video-preview-container" class="hidden">
+          <video id="video-preview" autoplay muted playsinline></video>
+          <div class="video-controls">
+            <button class="btn-sm danger" onclick="Recorder.stopVideo()">⏹ Arrêter</button>
+            <button class="btn-sm" onclick="Recorder.cancelVideo()">✕ Annuler</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="capsule-type-selector">
+        <p class="field-label">Type de capsule</p>
+        <div class="type-pills">
+          <button class="pill active" onclick="Studio.setType(this, 'message')">💬 Message</button>
+          <button class="pill" onclick="Studio.setType(this, 'conseil')">💡 Conseil</button>
+          <button class="pill" onclick="Studio.setType(this, 'secret')">🤫 Secret de famille</button>
+          <button class="pill" onclick="Studio.setType(this, 'anniversaire')">🎂 Anniversaire futur</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Titre de la capsule</label>
+        <input type="text" id="capsule-title" placeholder="Ex: Ce que j'aurais voulu te dire..." />
+      </div>
+      <div class="field">
+        <label>À qui est destinée cette capsule ?</label>
+        <input type="text" id="capsule-to" placeholder="Prénom du destinataire" />
+      </div>
+      <div class="field">
+        <label>Quand doit-elle s'ouvrir ?</label>
+        <select id="capsule-trigger">
+          <option value="guardian">Sur validation d'un Gardien</option>
+          <option value="date">À une date précise</option>
+          <option value="birthday">Pour un anniversaire</option>
+          <option value="immediate">Immédiatement accessible</option>
+        </select>
+      </div>
+      <div class="field hidden" id="capsule-date-field">
+        <label>Date d'ouverture</label>
+        <input type="date" id="capsule-date" />
+      </div>
+      <div class="field">
+        <label>Texte (facultatif)</label>
+        <textarea id="capsule-text" placeholder="Écrivez un message pour accompagner votre enregistrement..." rows="4"></textarea>
+      </div>
+
+      <button class="btn-primary full" onclick="Studio.saveCapsule()">💾 Sauvegarder la capsule</button>
+
+      <h3 class="section-label mt">Mes capsules</h3>
+      <div id="capsules-list" class="capsules-list"></div>
+    </section>
+
+    <!-- ── COFFRE-FORT -->
+    <section id="section-vault" class="section hidden">
+      <div class="section-header">
+        <button class="back-btn-sm" onclick="App.showSection('dashboard')">
+          <svg width="18" height="18" viewBox="0 0 20 20"><path d="M12 4L6 10L12 16" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+        </button>
+        <h2>Coffre-fort</h2>
+      </div>
+      <p class="section-desc">Stockage sécurisé de vos documents essentiels.</p>
+
+      <div class="vault-categories">
+        <button class="vault-cat active" onclick="Vault.filter(this, 'all')">Tous</button>
+        <button class="vault-cat" onclick="Vault.filter(this, 'legal')">⚖️ Légal</button>
+        <button class="vault-cat" onclick="Vault.filter(this, 'finance')">💰 Finance</button>
+        <button class="vault-cat" onclick="Vault.filter(this, 'medical')">🏥 Médical</button>
+        <button class="vault-cat" onclick="Vault.filter(this, 'personal')">❤️ Personnel</button>
+      </div>
+
+      <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()" ondragover="Vault.dragOver(event)" ondrop="Vault.drop(event)">
+        <input type="file" id="file-input" multiple hidden onchange="Vault.handleFiles(this.files)" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" />
+        <div class="upload-icon">📁</div>
+        <p>Déposez vos fichiers ici</p>
+        <p class="upload-hint">PDF, images, documents — chiffrement bout-en-bout</p>
+      </div>
+
+      <div class="field">
+        <label>Catégorie du document</label>
+        <select id="vault-category">
+          <option value="legal">⚖️ Documents légaux (testament, procurations)</option>
+          <option value="finance">💰 Finances (comptes, assurances, contrats)</option>
+          <option value="medical">🏥 Médical (directives anticipées, médecin)</option>
+          <option value="personal">❤️ Personnel (lettres, souvenirs)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Notes sur ce document</label>
+        <textarea id="vault-notes" placeholder="Instructions pour vos proches concernant ce document..." rows="3"></textarea>
+      </div>
+
+      <div id="vault-files-list" class="vault-list"></div>
+    </section>
+
+    <!-- ── GARDIENS -->
+    <section id="section-guardians" class="section hidden">
+      <div class="section-header">
+        <button class="back-btn-sm" onclick="App.showSection('dashboard')">
+          <svg width="18" height="18" viewBox="0 0 20 20"><path d="M12 4L6 10L12 16" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+        </button>
+        <h2>Mes Gardiens</h2>
+      </div>
+      <p class="section-desc">Désignez les personnes de confiance qui auront accès à votre transmission.</p>
+
+      <div class="guardian-explainer">
+        <div class="explainer-icon">🛡️</div>
+        <p>Un Gardien peut valider l'ouverture de certaines capsules et accéder à votre coffre-fort en cas de besoin. Choisissez avec soin.</p>
+      </div>
+
+      <h3 class="section-label">Ajouter un Gardien</h3>
+      <div class="field">
+        <label>Prénom et nom</label>
+        <input type="text" id="guardian-name" placeholder="Jean Dupont" />
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="guardian-email" placeholder="jean@email.com" />
+      </div>
+      <div class="field">
+        <label>Relation</label>
+        <select id="guardian-relation">
+          <option>Conjoint(e)</option>
+          <option>Enfant</option>
+          <option>Parent</option>
+          <option>Frère / Sœur</option>
+          <option>Ami(e) de confiance</option>
+          <option>Notaire</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Droits accordés</label>
+        <div class="checkbox-group">
+          <label class="checkbox-item"><input type="checkbox" id="g-capsules" checked /> Validation des capsules</label>
+          <label class="checkbox-item"><input type="checkbox" id="g-vault" /> Accès au coffre-fort</label>
+          <label class="checkbox-item"><input type="checkbox" id="g-contact" /> Contact d'urgence</label>
+        </div>
+      </div>
+      <div class="field">
+        <label>Message d'invitation personnalisé</label>
+        <textarea id="guardian-message" rows="3" placeholder="Bonjour Jean, je souhaite que tu veilles sur ce que je te confie..."></textarea>
+      </div>
+      <button class="btn-primary full" onclick="Guardians.invite()">📨 Envoyer l'invitation</button>
+
+      <h3 class="section-label mt">Gardiens désignés</h3>
+      <div id="guardians-list" class="guardians-list"></div>
+    </section>
+
+    <!-- ── BILAN DE TRANSMISSION -->
+    <section id="section-legacy" class="section hidden">
+      <div class="section-header">
+        <button class="back-btn-sm" onclick="App.showSection('dashboard')">
+          <svg width="18" height="18" viewBox="0 0 20 20"><path d="M12 4L6 10L12 16" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+        </button>
+        <h2>Bilan de Transmission</h2>
+      </div>
+      <p class="section-desc">Quelques questions pour garantir que rien ne sera laissé au hasard.</p>
+
+      <div class="legacy-progress">
+        <div class="legacy-steps">
+          <div class="legacy-step active" id="lstep-0">1</div>
+          <div class="legacy-line"></div>
+          <div class="legacy-step" id="lstep-1">2</div>
+          <div class="legacy-line"></div>
+          <div class="legacy-step" id="lstep-2">3</div>
+          <div class="legacy-line"></div>
+          <div class="legacy-step" id="lstep-3">4</div>
+        </div>
+      </div>
+
+      <div id="legacy-step-0" class="legacy-step-content">
+        <h3>Situation familiale</h3>
+        <div class="field">
+          <label>Situation matrimoniale</label>
+          <select id="l-marital"><option>Marié(e)</option><option>Pacsé(e)</option><option>Célibataire</option><option>Veuf/Veuve</option><option>Divorcé(e)</option></select>
+        </div>
+        <div class="field">
+          <label>Nombre d'enfants</label>
+          <input type="number" id="l-children" min="0" max="20" placeholder="0" />
+        </div>
+        <button class="btn-primary full" onclick="Legacy.next(1)">Continuer →</button>
+      </div>
+
+      <div id="legacy-step-1" class="legacy-step-content hidden">
+        <h3>Patrimoine & Prévoyance</h3>
+        <div class="field">
+          <label>Avez-vous une assurance-vie ?</label>
+          <div class="radio-group">
+            <label class="radio-item"><input type="radio" name="l-insurance" value="oui" /> Oui</label>
+            <label class="radio-item"><input type="radio" name="l-insurance" value="non" /> Non</label>
+            <label class="radio-item"><input type="radio" name="l-insurance" value="ne-sais-pas" /> Je ne sais pas</label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Êtes-vous propriétaire de votre résidence principale ?</label>
+          <div class="radio-group">
+            <label class="radio-item"><input type="radio" name="l-owner" value="oui" /> Oui</label>
+            <label class="radio-item"><input type="radio" name="l-owner" value="non" /> Non</label>
+          </div>
+        </div>
+        <button class="btn-ghost full" onclick="Legacy.next(0)">← Retour</button>
+        <button class="btn-primary full" onclick="Legacy.next(2)">Continuer →</button>
+      </div>
+
+      <div id="legacy-step-2" class="legacy-step-content hidden">
+        <h3>Volontés obsèques</h3>
+        <div class="field">
+          <label>Avez-vous un contrat obsèques ?</label>
+          <div class="radio-group">
+            <label class="radio-item"><input type="radio" name="l-funeral" value="oui" /> Oui</label>
+            <label class="radio-item"><input type="radio" name="l-funeral" value="non" /> Non</label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Vos souhaits de cérémonie</label>
+          <div class="radio-group">
+            <label class="radio-item"><input type="radio" name="l-ceremony" value="religieuse" /> Religieuse</label>
+            <label class="radio-item"><input type="radio" name="l-ceremony" value="laique" /> Laïque</label>
+            <label class="radio-item"><input type="radio" name="l-ceremony" value="intime" /> Intime</label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Inhumation ou crémation</label>
+          <div class="radio-group">
+            <label class="radio-item"><input type="radio" name="l-burial" value="inhumation" /> Inhumation</label>
+            <label class="radio-item"><input type="radio" name="l-burial" value="cremation" /> Crémation</label>
+            <label class="radio-item"><input type="radio" name="l-burial" value="indifferent" /> Sans préférence</label>
+          </div>
+        </div>
+        <button class="btn-ghost full" onclick="Legacy.next(1)">← Retour</button>
+        <button class="btn-primary full" onclick="Legacy.next(3)">Continuer →</button>
+      </div>
+
+      <div id="legacy-step-3" class="legacy-step-content hidden">
+        <h3>Votre bilan est prêt</h3>
+        <div class="legacy-result">
+          <div class="result-icon">✨</div>
+          <p>Merci pour ces informations. Votre profil de transmission est maintenant enrichi. Vos proches auront toutes les clés pour honorer vos volontés.</p>
+          <div id="legacy-recommendations" class="recommendations"></div>
+        </div>
+        <button class="btn-ghost full" onclick="Legacy.next(2)">← Modifier</button>
+        <button class="btn-primary full" onclick="Legacy.save()">💾 Sauvegarder mon bilan</button>
+      </div>
+    </section>
+
+    <!-- ── PROFIL -->
+    <section id="section-profile" class="section hidden">
+      <div class="section-header">
+        <button class="back-btn-sm" onclick="App.showSection('dashboard')">
+          <svg width="18" height="18" viewBox="0 0 20 20"><path d="M12 4L6 10L12 16" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+        </button>
+        <h2>Mon Profil</h2>
+      </div>
+
+      <div class="profile-card">
+        <div class="profile-avatar" id="profile-avatar-large">M</div>
+        <h3 id="profile-name-display">Marie</h3>
+        <p id="profile-email-display">marie@email.com</p>
+      </div>
+
+      <div class="settings-group">
+        <h3 class="settings-label">Notifications</h3>
+        <div class="setting-row">
+          <span>Rappels de transmission</span>
+          <label class="toggle">
+            <input type="checkbox" id="notif-reminders" checked onchange="Notifs.toggleReminders(this)" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="setting-row">
+          <span>Activité des Gardiens</span>
+          <label class="toggle">
+            <input type="checkbox" id="notif-guardians" checked />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <button class="btn-ghost full mt-sm" onclick="Notifs.requestPermission()">🔔 Activer les notifications push</button>
+      </div>
+
+      <div class="settings-group">
+        <h3 class="settings-label">Sécurité</h3>
+        <div class="setting-row" onclick="App.showModal('change-password')">
+          <span>Changer le mot de passe</span>
+          <svg width="16" height="16" viewBox="0 0 20 20"><path d="M8 4L14 10L8 16" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+        </div>
+        <div class="setting-row" onclick="App.showModal('audit')">
+          <span>Journal d'audit (accès &amp; sécurité)</span>
+          <svg width="16" height="16" viewBox="0 0 20 20"><path d="M8 4L14 10L8 16" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+        </div>
+        <div class="setting-row">
+          <span>Authentification à deux facteurs</span>
+          <label class="toggle">
+            <input type="checkbox" id="notif-2fa" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="setting-row">
+          <span>Session : expiration 24h · inactivité 30min</span>
+          <span style="font-size:.72rem;color:var(--gold)">🔐 Actif</span>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <h3 class="settings-label">Données</h3>
+        <div class="setting-row" onclick="App.exportData()">
+          <span>Exporter mes données</span>
+          <svg width="16" height="16" viewBox="0 0 20 20"><path d="M8 4L14 10L8 16" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+        </div>
+        <div class="setting-row danger" onclick="Auth.logout()">
+          <span>Se déconnecter</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Bottom Nav -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" id="nav-dashboard" onclick="App.showSection('dashboard')">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/></svg>
+      <span>Accueil</span>
+    </button>
+    <button class="nav-item" id="nav-studio" onclick="App.showSection('studio')">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M6 20.5c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+      <span>Mémoire</span>
+    </button>
+    <button class="nav-item" id="nav-vault" onclick="App.showSection('vault')">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="3" y="7" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M7 7V5a5 5 0 0 1 10 0v2" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="14" r="2" stroke="currentColor" stroke-width="1.5"/></svg>
+      <span>Coffre</span>
+    </button>
+    <button class="nav-item" id="nav-guardians" onclick="App.showSection('guardians')">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.5"/><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="1.5"/><path d="M23 21v-2a4 4 0 0 0-3-3.87" stroke="currentColor" stroke-width="1.5"/><path d="M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" stroke-width="1.5"/></svg>
+      <span>Gardiens</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ═══════════════════════════════════════════ TOAST -->
+<div id="toast" class="toast hidden"></div>
+
+<!-- ═══════════════════════════════════════════ MODAL -->
+<div id="modal-overlay" class="modal-overlay hidden" onclick="App.closeModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<script src="security.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
